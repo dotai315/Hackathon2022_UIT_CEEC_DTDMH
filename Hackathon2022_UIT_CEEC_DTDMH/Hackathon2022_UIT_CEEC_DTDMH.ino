@@ -1,5 +1,7 @@
+#include "mp3.h"
 #include "FasterQuestion.h"
 #include "FasterClick.h"
+#include "TruthDare.h"
 
 #define BT_FUCNS  1
 #define BT_RED    2
@@ -10,8 +12,7 @@
 enum GAME_TYPE {
   TRUTH_AND_DARE,
   WHO_FASTER_CLICK,
-  WHO_FASTER_QUESTION,
-  NOTTHING
+  WHO_FASTER_QUESTION
 };
 
 int button1 = A0;
@@ -20,8 +21,11 @@ int button3 = A2;
 int gameType = 1;
 int countMode = 0;
 int numberPlayer = 2;
+
+mp3 mplayer;
 FasterQuestionGame fq_game;
 FasterClick fc_game;
+TruthDare td_game;
 
 int buttonRead(void)
 {
@@ -57,8 +61,6 @@ enum GAME_TYPE InitGame()
     return WHO_FASTER_CLICK;
   case 3:
     return WHO_FASTER_QUESTION;
-  default:
-    return NOTTHING;
   }
 }
 
@@ -73,6 +75,8 @@ void setup() {
   pinMode(button3, INPUT);
   fq_game.begin(button1, button2, button3);
   fc_game.begin(button1, button3);
+  td_game.begin(button1, button3);
+  mplayer.begin();
 }
 
 void loop() {
@@ -80,46 +84,32 @@ void loop() {
   switch(InitGame()) {
     case TRUTH_AND_DARE:
       Serial.println("TruthAndDare");
-      TruthAndDare_GAME();
+      td_game.start();
+      while(1)
+      {
+        Serial.println("Is playing");
+        if (!digitalRead(button2))
+        {
+          Serial.println("Out TruthDare");
+          td_game.end();
+          break;
+        }
+        else
+        {
+          td_game.play(mplayer);
+        }
+      }
       break;
     case WHO_FASTER_CLICK:
       Serial.println("WhoFasterClick");
-      while (1)
-      {
-        fc_game.start();
-        fc_game.play();
-        fc_game.end();
-      }
+      fc_game.start();
+      fc_game.play();
+      fc_game.end();
       break;
     case WHO_FASTER_QUESTION:
       Serial.println("WhoFasterQuestion");
-      fq_game.play();
+      fq_game.play(mplayer);
       break;
-    case NOTHING:
   }
 
-}
-
-void TruthAndDare_GAME() {
-  if (digitalRead(BT_GREEN))
-  {
-    countMode = 0;
-    while(digitalRead(BT_GREEN))
-    {
-      countMode++;
-      delay(300);
-      if (countMode > 20)
-      break;
-    }
-    if (countMode < 20)
-    {
-      // Start
-    }
-    else 
-    {
-      // Điều chỉnh số lượng người chơi
-      if (digitalRead(BT_GREEN));
-
-    }
-  }
 }

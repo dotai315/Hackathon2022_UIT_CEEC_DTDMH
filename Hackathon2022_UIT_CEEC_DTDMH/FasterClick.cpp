@@ -50,6 +50,7 @@ void FasterClick::play()
   {
     Serial.println("P2 Win");
   }
+  delay(3000);
 }
 
 void FasterClick::end()

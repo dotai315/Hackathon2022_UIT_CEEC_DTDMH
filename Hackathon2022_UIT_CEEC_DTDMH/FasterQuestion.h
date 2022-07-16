@@ -1,20 +1,8 @@
 #pragma once 
-#include <SPI.h>
-#include <FreeStack.h>
 
-//Add the SdFat Libraries
-#include <SdFat.h>
-
-#include <vs1053_SdFat.h>
-
-#if defined(USE_MP3_REFILL_MEANS) && USE_MP3_REFILL_MEANS == USE_MP3_Timer1
-#include <TimerOne.h>
-#elif defined(USE_MP3_REFILL_MEANS) && USE_MP3_REFILL_MEANS == USE_MP3_SimpleTimer
-#include <SimpleTimer.h>
-#endif
 #include <Arduino.h>
 #include <ShiftRegister74HC595.h>
-
+#include "mp3.h"
 
 class FasterQuestionGame
 {
@@ -49,5 +37,5 @@ public:
     void begin(int button1, int button2, int button3);
     void start();
     void end();
-    void play(); 
+    void play(mp3 mplayer); 
 };
