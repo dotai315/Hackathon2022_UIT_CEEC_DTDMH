@@ -17,12 +17,12 @@ static ShiftRegister74HC595 sr (4,A3, A4, A5);
 void displayLed74HC595(int number)
 {
     //Split number to digits:
-    digit4= (number / 1000);
+    /*digit4= (number / 1000);
     digit3= (number / 100) % 10;
     digit2= (number / 10) % 10 ;
-    digit1= number % 10 ;
+    digit1= number % 10 ;*/
     //Send them to 7 segment displays
-    uint8_t numberToPrint[]= {numberB[digit1],numberB[digit2],numberB[digit3],numberB[digit4]};
+    uint8_t numberToPrint[]= {numberB[1],numberB[2],numberB[3],numberB[4]};
     sr.setAll(numberToPrint); 
     //Reset them for next time
     digit3=0;
