@@ -1,4 +1,5 @@
 #include "FasterQuestion.h"
+#include "FasterClick.h"
 
 #define BT_FUCNS  1
 #define BT_RED    2
@@ -19,6 +20,8 @@ int gameType = 1;
 int countMode = 0;
 int numberPlayer = 2;
 FasterQuestionGame fq_game;
+FasterClick fc_game;
+
 int buttonRead(void)
 {
   while (1)
@@ -66,6 +69,7 @@ void setup() {
   pinMode(button2, INPUT);
   pinMode(button3, INPUT);
   fq_game.begin(button1, button2, button3);
+  fc_game.begin(button1, button3);
 }
 
 void loop() {
@@ -77,7 +81,12 @@ void loop() {
       break;
     case WHO_FASTER_CLICK:
       Serial.println("WhoFasterClick");
-      WhoFasterClick_GAME();
+      while (1)
+      {
+        fc_game.start();
+        fc_game.play();
+        fc_game.end();
+      }
       break;
     case WHO_FASTER_QUESTION:
       Serial.println("WhoFasterQuestion");
@@ -109,7 +118,4 @@ void TruthAndDare_GAME() {
 
     }
   }
-}
-void WhoFasterClick_GAME() {
-
 }
