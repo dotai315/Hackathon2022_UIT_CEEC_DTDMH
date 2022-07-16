@@ -1,132 +1,115 @@
-/**************************************
-*
-*  Example for Sparkfun MP3 Shield Library
-*      By: Bill Porter
-*      www.billporter.info
-*
-*   Function:
-*      This sketch listens for commands from a serial terminal (like the Serial Monitor in 
-*      the Arduino IDE). If it sees 1-9 it will try to play an MP3 file named track00x.mp3
-*      where x is a number from 1 to 9. For eaxmple, pressing 2 will play 'track002.mp3'.
-*      A lowe case 's' will stop playing the mp3.
-*      'f' will play an MP3 by calling it by it's filename as opposed to a track number. 
-*
-*      Sketch assumes you have MP3 files with filenames like 
-*      "track001.mp3", "track002.mp3", etc on an SD card loaded into the shield. 
-*
-***************************************/
+#include "FasterQuestion.h"
 
-#include <SPI.h>
+#define BT_FUCNS  1
+#define BT_RED    2
+#define BT_GREEN  3
 
-//Add the SdFat Libraries
-#include <SdFat.h>
-#include <SdFatUtil.h> 
+#define DEBUG_PRINT
 
-//and the MP3 Shield Library
-#include <SFEMP3Shield.h>
+enum GAME_TYPE {
+  TRUTH_AND_DARE,
+  WHO_FASTER_CLICK,
+  WHO_FASTER_QUESTION
+};
 
-//create and name the library object
-SFEMP3Shield MP3player;
-SdFat sd;
-SdFile file;
+int button1 = A0;
+int button2 = A1;
+int button3 = A2;
+int gameType = 1;
+int countMode = 0;
+int numberPlayer = 2;
+FasterQuestionGame fq_game;
+int buttonRead(void)
+{
+  while (1)
+  {
+    if (!digitalRead(button1))
+    {
+      while(!digitalRead(button1));
+      return 1;
+    }
+  
+    if (!digitalRead(button2))
+    {
+      while(!digitalRead(button2));
+      return 2;
+    }
+    if (!digitalRead(button3))
+    {
+      while(!digitalRead(button3));
+      return 3;
+    }
+  }
+}
 
-byte temp;
-byte result;
-
-char title[30];
-char artist[30];
-char album[30];
+enum GAME_TYPE InitGame() 
+{
+  int modeGame = buttonRead();
+  switch(modeGame)
+  {
+  case 1: 
+    return TRUTH_AND_DARE;
+  case 2:
+    return WHO_FASTER_CLICK;
+  case 3:
+    return WHO_FASTER_QUESTION;
+  }
+}
 
 
 void setup() {
-
-  Serial.begin(115200);
-  
-   result = sd.begin(SD_SEL, SPI_HALF_SPEED);
-  
-  //boot up the MP3 Player Shield
-  result = MP3player.begin();
-  //check result, see readme for error codes.
-  if(result != 0) {
-    Serial.print("Error code: ");
-    Serial.print(result);
-    Serial.println(" when trying to start MP3 player");
-    }
-
-  Serial.println("Hello");
-  Serial.println("Send a number 1-9 to play a track or s to stop playing");
-  
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  Serial.println("IU HACKATHON 2022 - LUCKY GAME BOX");
+  Serial.println("Setting Button...");
+  pinMode(button1, INPUT);
+  pinMode(button2, INPUT);
+  pinMode(button3, INPUT);
+  fq_game.begin(button1, button2, button3);
 }
 
 void loop() {
-  
-  if(Serial.available()){
-    temp = Serial.read();
-    
-    Serial.print("Received command: ");
-    Serial.write(temp);
-    Serial.println(" ");
-    
-    //if s, stop the current track
-    if (temp == 's') {
-      MP3player.stopTrack();
-    }
-      
-    else if (temp >= '1' && temp <= '9'){
-      //convert ascii numbers to real numbers
-      temp = temp - 48;
-      
-      //tell the MP3 Shield to play a track
-      result = MP3player.playTrack(temp);
-      
-      //check result, see readme for error codes.
-      if(result != 0) {
-        Serial.print("Error code: ");
-        Serial.print(result);
-        Serial.println(" when trying to play track");
-        }
-      
-      Serial.println("Playing:");
-      
-      //we can get track info by using the following functions and arguments
-      //the functions will extract the requested information, and put it in the array we pass in  
-      MP3player.trackTitle((char*)&title);
-      MP3player.trackArtist((char*)&artist);
-      MP3player.trackAlbum((char*)&album);
-      
-      //print out the arrays of track information
-      Serial.write((byte*)&title, 30);
-      Serial.println();
-      Serial.print("by:  ");
-      Serial.write((byte*)&artist, 30);
-      Serial.println();
-      Serial.print("Album:  ");
-      Serial.write((byte*)&album, 30);
-      Serial.println();
-      
-      }
-    
-    /* Alterativly, you could call a track by it's file name by using playMP3(filename); 
-       But you must stick to 8.1 filenames, only 8 characters long, and 3 for the extension */
-    
-    else if (temp == 'f') {
-      //create a string with the filename
-      char trackName[] = "1.mp3";
-//      char trackName[] = "1.mp3";
-      
-      //tell the MP3 Shield to play that file
-      result = MP3player.playMP3(trackName);
-      
-      //check result, see readme for error codes.
-      if(result != 0) {
-        Serial.print("Error code: ");
-        Serial.print(result);
-        Serial.println(" when trying to play track");
-        }
-      }
-      
+  // put your main code here, to run repeatedly:
+  switch(InitGame()) {
+    case TRUTH_AND_DARE:
+      Serial.println("TruthAndDare");
+      TruthAndDare_GAME();
+      break;
+    case WHO_FASTER_CLICK:
+      Serial.println("WhoFasterClick");
+      WhoFasterClick_GAME();
+      break;
+    case WHO_FASTER_QUESTION:
+      Serial.println("WhoFasterQuestion");
+      fq_game.play();
+    break;
   }
-  
-  delay(100);
-  
+
+}
+
+void TruthAndDare_GAME() {
+  if (digitalRead(BT_GREEN))
+  {
+    countMode = 0;
+    while(digitalRead(BT_GREEN))
+    {
+      countMode++;
+      delay(300);
+      if (countMode > 20)
+      break;
+    }
+    if (countMode < 20)
+    {
+      // Start
+    }
+    else 
+    {
+      // Điều chỉnh số lượng người chơi
+      if (digitalRead(BT_GREEN));
+
+    }
+  }
+}
+void WhoFasterClick_GAME() {
+
 }
