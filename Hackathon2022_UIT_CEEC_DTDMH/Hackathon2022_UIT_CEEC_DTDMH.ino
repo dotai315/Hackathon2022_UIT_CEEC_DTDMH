@@ -10,7 +10,8 @@
 enum GAME_TYPE {
   TRUTH_AND_DARE,
   WHO_FASTER_CLICK,
-  WHO_FASTER_QUESTION
+  WHO_FASTER_QUESTION,
+  NOTTHING
 };
 
 int button1 = A0;
@@ -56,6 +57,8 @@ enum GAME_TYPE InitGame()
     return WHO_FASTER_CLICK;
   case 3:
     return WHO_FASTER_QUESTION;
+  default:
+    return NOTTHING;
   }
 }
 
@@ -91,7 +94,8 @@ void loop() {
     case WHO_FASTER_QUESTION:
       Serial.println("WhoFasterQuestion");
       fq_game.play();
-    break;
+      break;
+    case NOTHING:
   }
 
 }
